@@ -2,8 +2,7 @@ from math import atan, floor, pi, cos, sin
 import pygame
 import random
 from Config import WIDTH, HEIGHT
-from Score import Lscore, Rscore
-
+import Score
 
 class Ball:
 
@@ -53,6 +52,10 @@ class Ball:
 		bottom = self.pos.y + self.rad
 
 		zeroVector = pygame.Vector2(0, 0)
+
+		if self.pos.y <= 0 or self.pos.y >= HEIGHT:
+			self.pos = pygame.Vector2 (1500 // 2, 750 // 2)
+			print("out of bounds")
 		
 		# collide with top
 		if top < 0 or bottom > HEIGHT:
@@ -63,10 +66,11 @@ class Ball:
 
 		# collide left
 
-	def collidePaddles (self, paddle):
+	def collidePaddles (self, paddle, speed):
 		zeroVector = pygame.Vector2(0, 0)
 		if self.hitbox.colliderect (paddle.rect):
 			self.vel.x = -self.vel.x
+			self.vel.y += speed
 			self.angle = zeroVector.angle_to(self.vel) * pi / 180.0
 
 	def movetoCenter (self):
@@ -75,14 +79,21 @@ class Ball:
 		self.setAngle()
 
 	def reset (self):
-		global Lscore, Rscore
+		
+		if Score.Rscore >= Score.MaxScore:
+			return 2
+
+		if Score.Lscore >= Score.MaxScore:
+			return 1
 
 		if self.pos.x >= WIDTH:
-			Lscore += 1
+			Score.Lscore += 1
 			self.movetoCenter()
-			print (Lscore, "-", Rscore)
+			print (Score.Lscore, "-", Score.Rscore)
 		
 		if self.pos.x <= 0:
-			Rscore += 1
+			Score.Rscore += 1
 			self.movetoCenter()
-			print (Lscore, "-", Rscore)
+			print (Score.Lscore, "-", Score.Rscore)
+
+		return 0
